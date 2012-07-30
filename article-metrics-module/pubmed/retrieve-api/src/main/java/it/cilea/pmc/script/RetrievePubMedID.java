@@ -1,0 +1,154 @@
+package it.cilea.pmc.script;
+
+import it.cilea.pmc.services.PMCEntrezException;
+import it.cilea.pmc.services.PMCEntrezLocalSOLRServices;
+
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
+import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Item;
+import org.dspace.core.Context;
+import org.dspace.core.LogManager;
+import org.dspace.discovery.SearchService;
+import org.dspace.discovery.SearchServiceException;
+import org.dspace.kernel.ServiceManager;
+import org.dspace.utils.DSpace;
+import org.springframework.util.StringUtils;
+
+public class RetrievePubMedID
+{
+    /** log4j logger */
+    private static Logger log = Logger.getLogger(RetrievePubMedID.class);
+
+    /** The DSpace context to initialize ONLY if needed (some pubmedID found) */
+    private static Context context = null;
+
+    public static void main(String[] args) throws SearchServiceException,
+            SQLException, AuthorizeException, PMCEntrezException
+    {
+        DSpace dspace = new DSpace();
+        int pmidRetrieved = 0;
+        Date startDate = new Date();
+
+        ServiceManager serviceManager = dspace.getServiceManager();
+        SearchService searcher = serviceManager.getServiceByName(
+                SearchService.class.getName(), SearchService.class);
+        PMCEntrezLocalSOLRServices entrez = new PMCEntrezLocalSOLRServices();
+
+        SolrQuery query = new SolrQuery();
+        query.setQuery("+(dc.identifier.doi:[* TO *] OR dc.identifier.pmcid:[* TO *]) -dc.identifier.pmid:[* TO *] +inarchive:true");
+        query.setRows(Integer.MAX_VALUE);
+        query.setFields("search.resourceid", "dc.identifier.doi",
+                "dc.identifier.pmcid");
+        QueryResponse qresp = searcher.search(query);
+        SolrDocumentList list = qresp.getResults();
+        log.info(LogManager.getHeader(null, "retrieve_pubmedID", "Processing "
+                + list.getNumFound() + " items"));
+        for (SolrDocument doc : list)
+        {
+            Integer itemID = (Integer) doc.getFieldValue("search.resourceid");
+            if (isCheckRequired(itemID))
+            {
+                Collection<Object> dois = (Collection<Object>) doc
+                        .getFieldValues("dc.identifier.doi");
+                Collection<Object> pmcids = (Collection<Object>) doc
+                        .getFieldValues("dc.identifier.pmcid");
+                if (dois != null)
+                {
+                    for (Object doi : dois)
+                    {
+                        log.debug(LogManager.getHeader(null,
+                                "retrieve_pubmedID", "search doi:" + doi));
+                        List<Integer> pubmedIDs = entrez
+                                .getPubmedIDs((String) doi);
+                        log.debug(LogManager.getHeader(null,
+                                "retrieve_pubmedID", "pubmedIDs=" + pubmedIDs));
+                        if (pubmedIDs != null && pubmedIDs.size() > 0)
+                        {
+                            pmidRetrieved++;
+                            recordPubmedID(itemID, pubmedIDs);
+                        }
+                    }
+                }
+                if (pmcids != null)
+                {
+                    for (Object pmcid : pmcids)
+                    {
+                        String spmcid = (String) pmcid;
+                        if (spmcid.toLowerCase().startsWith("pmc"))
+                        {
+                            spmcid = spmcid.substring(3);
+                        }
+                        log.debug(LogManager.getHeader(null,
+                                "retrieve_pubmedID", "search PMCID:" + pmcid));
+                        try
+                        {
+                            Integer ipmcid = Integer.valueOf(spmcid);
+                            List<Integer> pubmedIDs = entrez
+                                    .getPubmedIDs(ipmcid);
+                            log.debug(LogManager.getHeader(null,
+                                    "retrieve_pubmedID", "pubmedIDs="
+                                            + StringUtils.collectionToCommaDelimitedString(pubmedIDs)));
+                            if (pubmedIDs != null && pubmedIDs.size() > 0)
+                            {
+                                pmidRetrieved++;
+                                recordPubmedID(itemID, pubmedIDs);
+                            }
+                        }
+                        catch (NumberFormatException nfe)
+                        {
+                            log.error(LogManager.getHeader(null,
+                                    "retrieve_pubmedID",
+                                    "Found an invalid PMCID value! ItemID: "
+                                            + itemID + " - PMCID: " + pmcid));
+                        }
+                    }
+                }
+            }
+        }
+        Date endDate = new Date();
+        long processTime = (endDate.getTime() - startDate.getTime()) / 1000;
+        log.info(LogManager.getHeader(null, "retrieve_pubmedID",
+                "Processing time " + processTime + " sec. - Retrieved "
+                        + pmidRetrieved + " pubmedID"));
+    }
+
+    private static void recordPubmedID(Integer itemID, List<Integer> pubmedIDs)
+            throws SQLException, AuthorizeException
+    {
+        Context context = getContext();
+        Item item = Item.find(context, itemID);
+        for (Integer pid : pubmedIDs)
+        {
+            item.clearMetadata("dc", "identifier", "pmid", null);
+            item.addMetadata("dc", "identifier", "pmid", null, pid.toString());
+            item.update();
+        }
+        context.commit();
+        context.removeCached(item, itemID);
+    }
+
+    private static Context getContext() throws SQLException
+    {
+        if (context != null)
+        {
+            return context;
+        }
+        context = new Context();
+        context.turnOffAuthorisationSystem();
+        return context;
+    }
+
+    private static boolean isCheckRequired(Integer fieldValue)
+    {
+        return true;
+    }
+}

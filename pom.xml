@@ -321,7 +321,18 @@
             </modules>
         </profile>
 
-
+ 		<!--
+           Builds Article Metrics :: PubMed module WAR and API
+        -->
+        <profile>
+            <id>article-metrics</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>article-metrics-module</module>
+            </modules>
+        </profile>
       <!--
          Use 'mvn deploy -Paddons' while doing Continuous Integration
          and deploying addons to the Maven repository.
@@ -342,6 +353,7 @@
             <module>dspace-sword</module>
             <module>dspace-swordv2</module>
             <module>dspace-sword-client</module>
+            <module>article-metrics-module</module>
          </modules>
       </profile>
 
@@ -553,6 +565,12 @@
               <artifactId>dspace-discovery-solr</artifactId>
               <version>3.0-SNAPSHOT</version>
           </dependency>
+          <dependency>
+			<groupId>it.cilea</groupId>
+			<artifactId>pubmed-retrieve</artifactId>
+			<version>0.1</version>			
+		  </dependency>		
+		         
          <!-- DSpace third Party Dependencies -->
 
                  <!-- Explicitly Specify Latest Version of Spring -->
@@ -1180,5 +1198,5 @@
     <distributionManagement>
         <!-- further distribution management is found upstream in the sonatype parent -->
     </distributionManagement>
-    
+        
 </project>

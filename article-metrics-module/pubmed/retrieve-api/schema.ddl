@@ -1,0 +1,11 @@
+create table PMCCitation (pubmedID int4 not null, numCitations int4 not null, timestampCreated timestamp, timestampLastModified timestamp, primary key (pubmedID));
+create table PMCCitation_PMCRecord (PMCCitation_pubmedID int4 not null, pmcRecords_pmcID int4 not null);
+create table PMCCitation_itemIDs (PMCCitation_pubmedID int4 not null, element int4);
+create table PMCRecord (pmcID int4 not null, authors text, publicationNote text, title text, primary key (pmcID));
+create table PMCRecord_handles (PMCRecord_pmcID int4 not null, element varchar(255));
+create table PMCRecord_pubmedIDs (PMCRecord_pmcID int4 not null, element int4);
+alter table PMCCitation_PMCRecord add constraint FK5AFB5F05E4C0A379 foreign key (pmcRecords_pmcID) references PMCRecord;
+alter table PMCCitation_PMCRecord add constraint FK5AFB5F05885E6A8D foreign key (PMCCitation_pubmedID) references PMCCitation;
+alter table PMCCitation_itemIDs add constraint FK58232B73885E6A8D foreign key (PMCCitation_pubmedID) references PMCCitation;
+alter table PMCRecord_handles add constraint FKF74540E3DE17B94 foreign key (PMCRecord_pmcID) references PMCRecord;
+alter table PMCRecord_pubmedIDs add constraint FK8EE0B641DE17B94 foreign key (PMCRecord_pmcID) references PMCRecord;

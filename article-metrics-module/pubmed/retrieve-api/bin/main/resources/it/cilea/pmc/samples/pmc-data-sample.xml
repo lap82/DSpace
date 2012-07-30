@@ -1,0 +1,164 @@
+<?xml version="1.0"?>
+<!DOCTYPE pmc-articleset PUBLIC "-//PMC//DTD ARTICLE SET 2.0//EN" "http://www.pubmedcentral.nih.gov/pmcdoc/dtd/nlm_lib/articleset/nlm-articleset-2.0.dtd">
+<pmc-articleset>
+
+	<article xmlns:xlink="http://www.w3.org/1999/xlink"
+		article-type="research-article"><!--The publisher of this article does not allow downloading 
+			of the full text in XML form. --><?scanned_data?><?from_PubMed?>
+		<front>
+			<journal-meta>
+				<journal-id journal-id-type="nlm-ta">Proc Natl Acad Sci U S A</journal-id>
+				<journal-title>Proceedings of the National Academy of Sciences of
+					the United States of America</journal-title>
+				<issn pub-type="ppub">0027-8424</issn>
+				<issn pub-type="epub">1091-6490</issn>
+			</journal-meta>
+			<article-meta>
+				<article-id pub-id-type="pmc">39854</article-id>
+				<article-id pub-id-type="pmid">8700831</article-id>
+				<article-categories>
+					<subj-group subj-group-type="heading">
+						<subject>Research Article</subject>
+					</subj-group>
+				</article-categories>
+				<title-group>
+					<article-title>A quantitative test to estimate neutralizing
+						antibodies to the hepatitis C virus: cytofluorimetric assessment
+						of envelope glycoprotein 2 binding to target cells.</article-title>
+				</title-group>
+				<contrib-group>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Rosa</surname>
+							<given-names>D</given-names>
+						</name>
+					</contrib>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Campagnoli</surname>
+							<given-names>S</given-names>
+						</name>
+					</contrib>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Moretto</surname>
+							<given-names>C</given-names>
+						</name>
+					</contrib>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Guenzi</surname>
+							<given-names>E</given-names>
+						</name>
+					</contrib>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Cousens</surname>
+							<given-names>L</given-names>
+						</name>
+					</contrib>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Chin</surname>
+							<given-names>M</given-names>
+						</name>
+					</contrib>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Dong</surname>
+							<given-names>C</given-names>
+						</name>
+					</contrib>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Weiner</surname>
+							<given-names>A J</given-names>
+						</name>
+					</contrib>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Lau</surname>
+							<given-names>J Y</given-names>
+						</name>
+					</contrib>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Choo</surname>
+							<given-names>Q L</given-names>
+						</name>
+					</contrib>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Chien</surname>
+							<given-names>D</given-names>
+						</name>
+					</contrib>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Pileri</surname>
+							<given-names>P</given-names>
+						</name>
+					</contrib>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Houghton</surname>
+							<given-names>M</given-names>
+						</name>
+					</contrib>
+					<contrib contrib-type="author">
+						<name>
+							<surname>Abrignani</surname>
+							<given-names>S</given-names>
+						</name>
+					</contrib>
+				</contrib-group>
+				<aff>Chiron-Biocine, Immunobiology Research Institute of Siena
+					(IRIS), Italy.</aff>
+				<pub-date pub-type="ppub">
+					<day>5</day>
+					<month>3</month>
+					<year>1996</year>
+				</pub-date>
+				<volume>93</volume>
+				<issue>5</issue>
+				<fpage>1759</fpage>
+				<lpage>1763</lpage>
+				<abstract>
+					<p>Hepatitis C virus (HCV) is a major cause of chronic hepatitis.
+						The virus does not replicate efficiently in cell cultures, and it
+						is therefore difficult to assess infection-neutralizing antibodies
+						and to evaluate protective immunity in vitro. To study the binding
+						of the HCV envelope to cell-surface receptors, we developed an
+						assay to assess specific binding of recombinant envelope proteins
+						to human cells and neutralization thereof. HCV recombinant
+						envelope proteins expressed in various systems were incubated with
+						human cells, and binding was assessed by flow cytometry using
+						anti-envelope antibodies. Envelope glycoprotein 2 (E2) expressed
+						in mammalian cells, but not in yeast or insect cells, binds human
+						cells with high affinity (Kd approximately 10(-8) M). We then
+						assessed antibodies able to neutralize E2 binding in the sera of
+						both vaccinated and carrier chimpanzees, as well as in the sera of
+						humans infected with various HCV genotypes. Vaccination with
+						recombinant envelope proteins expressed in mammalian cells
+						elicited high titers of neutralizing antibodies that correlated
+						with protection from HCV challenge. HCV infection does not elicit
+						neutralizing antibodies in most chimpanzees and humans, although
+						low titers of neutralizing antibodies were detectable in a
+						minority of infections. The ability to neutralize binding of E2
+						derived from the HCV-1 genotype was equally distributed among sera
+						from patients infected with HCV genotypes 1, 2, and 3,
+						demonstrating that binding of E2 is partly independent of E2
+						hypervariable regions. However, a mouse monoclonal antibody raised
+						against the E2 hypervariable region 1 can partially neutralize
+						binding of E2, indicating that at least two neutralizing epitopes,
+						one of which is hypervariable, should exist on the E2 protein. The
+						neutralization-of-binding assay described will be useful to study
+						protective immunity to HCV infection and for vaccine development.</p>
+				</abstract>
+			</article-meta>
+		</front>
+	</article>
+
+
+
+</pmc-articleset>

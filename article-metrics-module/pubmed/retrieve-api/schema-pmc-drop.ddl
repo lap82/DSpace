@@ -1,0 +1,11 @@
+alter table PMCCitation_PMCRecord drop constraint FK5AFB5F05E4C0A379;
+alter table PMCCitation_PMCRecord drop constraint FK5AFB5F05885E6A8D;
+alter table PMCCitation_itemIDs drop constraint FK58232B73885E6A8D;
+alter table PMCRecord_handles drop constraint FKF74540E3DE17B94;
+alter table PMCRecord_pubmedIDs drop constraint FK8EE0B641DE17B94;
+drop table PMCCitation;
+drop table PMCCitation_PMCRecord;
+drop table PMCCitation_itemIDs;
+drop table PMCRecord;
+drop table PMCRecord_handles;
+drop table PMCRecord_pubmedIDs;

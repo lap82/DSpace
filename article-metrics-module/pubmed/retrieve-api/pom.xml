@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+	<packaging>jar</packaging>
+	<groupId>it.cilea</groupId>
+	<artifactId>pubmed-retrieve</artifactId>
+	<version>0.1</version>
+    <name>Article Metrics :: PubMed :: Retrieve API</name>
+    <parent>
+        <groupId>it.cilea</groupId>
+        <artifactId>article-metrics-pubmed</artifactId>
+        <version>0.1</version>
+   </parent>
+	
+
+    
+    <dependencies>
+
+        <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-api</artifactId>
+        </dependency>
+    
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+
+		<dependency>
+            <groupId>org.dspace.discovery</groupId>
+            <artifactId>discovery-solr-provider</artifactId>
+            <version>0.9.2-SNAPSHOT</version>
+        </dependency>
+		<dependency>
+			<groupId>org.dspace</groupId>
+			<artifactId>dspace-stats</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-cilea-genericdao</groupId>
+			<artifactId>commons-cilea-genericdao</artifactId>
+			<version>0.1</version>			
+		</dependency>
+		
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>3.3.2.GA</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-annotations</artifactId>
+			<version>3.4.0.GA</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>3.0.5.RELEASE</version>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+
+        <!--
+           This profile is used by all children such that
+           when activated a dspace.config configuration
+           file location passed on the commandline
+           (-Ddspace.config=...) can be passed through
+           to be used as a filter source by projects for
+           tasks such as updating the ${dspace.dir} in
+           web.xml etc.
+
+           When activated, the child project will inherit
+           the configuration.
+        -->
+        <profile>
+            <id>dspace-config</id>
+            <activation>
+                <property>
+                    <name>dspace.config</name>
+                </property>
+            </activation>
+            <build>
+                <filters>
+                    <filter>${dspace.config}</filter>
+                </filters>
+            </build>
+        </profile>
+    </profiles>
+
+	<build>
+		<plugins>
+<!-- 				<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.5</version>
+			</plugin>  -->
+			 <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+        <classpathScope>test</classpathScope>
+        <longClasspath>true</longClasspath>
+        <executable>java</executable>
+          <arguments>
+            <argument>-Ddspace.configuration=${dspace.config}</argument>
+            <argument>-Xdebug</argument>
+            <argument>-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000</argument>
+            <argument>-classpath</argument>
+            <!-- automatically creates the classpath using all project dependencies,
+                 also adding the project build directory -->
+            <classpath/>
+            <argument>org.dspace.app.launcher.ScriptLauncher</argument>
+            <argument>dsrun</argument>
+            <argument>it.cilea.pmc.script.RetrieveCitationInPMC</argument>
+            <argument>-x 10</argument>
+          </arguments>
+<!-- <mainClass>org.dspace.app.launcher.ScriptLauncher</mainClass>
+          <systemProperties>
+            <systemProperty>
+              <key>dspace.configuration</key>
+              <value>E:/data/apphome/dspace/config/dspace.cfg</value>
+            </systemProperty>
+           </systemProperties>
+           <arguments>
+				<argument>dsrun</argument>
+           		<argument>it.cilea.pmc.script.RetrieveCitationInPMC</argument>
+           </arguments> -->           
+        </configuration>
+      </plugin>
+			
+			
+			   <!--plugin>
+                                <artifactId>maven-antrun-plugin</artifactId>
+                                <executions>
+                                
+                                <execution>
+                                                <id>create-tables-and-GEN-DDL</id>
+                                                <goals>
+                                                        <goal>run</goal>
+                                                </goals>
+                                                <configuration>
+                                                        <tasks>
+                                                                <ant antfile="${basedir}/src/main/resources/build.xml"
+                                                                        inheritRefs="true">
+                                                                        <target name="create-tables-and-GEN-DDL" />
+                                                                </ant>
+                                                        </tasks>
+                                                </configuration>
+                                        </execution-->
+        <!-- 
+                                        <execution>
+                                                <id>generate-ddl</id>
+                                                <phase>process-classes</phase>
+                                                <goals>
+                                                        <goal>run</goal>
+                                                </goals>
+                                                <configuration>
+                                                        <tasks>
+                                                                <ant antfile="${basedir}/src/main/resources/build.xml"
+                                                                        inheritRefs="true">
+                                                                        <target name="generate-ddl" />
+                                                                </ant>
+                                                        </tasks>
+                                                </configuration>
+                                        </execution>
+
+                                        
+                                        <execution>
+                                                <id>generate-drop-ddl</id>
+                                                <phase>process-classes</phase>
+                                                <goals>
+                                                        <goal>run</goal>
+                                                </goals>
+                                                <configuration>
+                                                        <tasks>
+                                                                <ant antfile="${basedir}/src/main/resources/build.xml"
+                                                                        inheritRefs="true">
+                                                                        <target name="generate-drop-ddl" />
+                                                                </ant>
+                                                        </tasks>
+                                                </configuration>
+                                        </execution>
+
+                                        <execution>
+                                                <id>generate-update-ddl</id>
+                                                <phase>process-classes</phase>
+                                                <goals>
+                                                        <goal>run</goal>
+                                                </goals>
+                                                <configuration>
+                                                        <tasks>
+                                                                <ant antfile="${basedir}/src/main/resources/build.xml"
+                                                                        inheritRefs="true">
+                                                                        <target name="generate-update-ddl" />
+                                                                </ant>
+                                                        </tasks>
+                                                </configuration>
+                                        </execution>
+
+                                        <execution>
+                                                <id>refresh-database</id>
+                                                <phase>process-classes</phase>
+                                                <goals>
+                                                        <goal>run</goal>
+                                                </goals>
+                                                <configuration>
+                                                        <tasks>
+                                                                <ant antfile="${basedir}/src/main/resources/build.xml"
+                                                                        inheritRefs="true">
+                                                                        <target name="refresh-database" />
+                                                                </ant>
+                                                        </tasks>
+                                                </configuration>
+                                        </execution>
+
+                             </executions> -->
+                                <!--dependencies>
+                                        <dependency>
+                                                <groupId>postgresql</groupId>
+                                                <artifactId>postgresql</artifactId>
+                                                <version>8.1-404.jdbc3</version>
+                                        </dependency>
+                                        <dependency>
+                                                <groupId>org.hibernate</groupId>
+                                                <artifactId>hibernate-core</artifactId>
+                                                <version>3.3.1.GA</version>
+                                        </dependency>
+
+                                        <dependency>
+                                                <groupId>org.hibernate</groupId>
+                                                <artifactId>hibernate-annotations</artifactId>
+                                                <version>3.4.0.GA</version>
+                                        </dependency>
+
+                                        <dependency>
+                                                <groupId>org.hibernate</groupId>
+                                                <artifactId>hibernate-tools</artifactId>
+                                                <version>3.2.3.GA</version>
+                                        </dependency>
+                                        <dependency>
+                                                <groupId>org.hibernate</groupId>
+                                                <artifactId>hibernate-entitymanager</artifactId>
+                                                <version>3.3.1.ga</version>
+                                        </dependency>
+                                        <dependency>
+                                                <groupId>log4j</groupId>
+                                                <artifactId>log4j</artifactId>
+                                                <version>1.2.16</version>
+                                        </dependency>
+
+                                        <dependency>
+                                                <groupId>org.slf4j</groupId>
+                                                <artifactId>slf4j-api</artifactId>
+                                                <version>1.5.6</version>
+                                        </dependency>
+
+                                        <dependency>
+                                                <groupId>org.slf4j</groupId>
+                                                <artifactId>slf4j-nop</artifactId>
+                                                <version>1.5.6</version>
+                                        </dependency>
+                                </dependencies>
+                        </plugin-->
+		</plugins>
+	</build>
+
+    <repositories>
+        <repository>
+            <id>maven.dspace.org-snapshot</id>
+            <name>DSpace Maven Snapshot Repository</name>
+            <url>http://maven.dspace.org/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+                <checksumPolicy>fail</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
+</project>

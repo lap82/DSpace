@@ -20,7 +20,7 @@
     </parent>
 
     <properties>
-        <default.dspace.dir>/dspace</default.dspace.dir>
+        <default.dspace.dir>/var/dspace</default.dspace.dir>
         <default.mail.server>smtp.example.com</default.mail.server>
         <default.solr.server>http://localhost:8080/solr</default.solr.server>
     </properties>

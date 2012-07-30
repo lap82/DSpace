@@ -29,6 +29,8 @@
          </plugin>
       </plugins>
    </build>
+   
+	
    <dependencies>
        <dependency>
            <groupId>org.dspace</groupId>

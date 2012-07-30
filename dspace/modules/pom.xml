@@ -97,5 +97,14 @@
                 <module>solr</module>
             </modules>
         </profile>
-    </profiles>
+        <profile>
+            <id>article-metrics-module</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>metrics-module</module>
+            </modules>
+        </profile>        
+    </profiles>    
 </project>
