@@ -438,12 +438,6 @@
     <servlet-name>shibboleth-login</servlet-name>
     <url-pattern>/shibboleth-login</url-pattern>
   </servlet-mapping>
- 
- 	<!-- Pubmed retrieval -->
-	<servlet>
-		<servlet-name>PMCGetCitedByCount</servlet-name>
-		<servlet-class>it.cilea.pmc.servlet.PMCServlet</servlet-class>
-	</servlet>
 
   <!-- Servlet Mappings -->
 
@@ -717,10 +711,6 @@
       <url-pattern>/choices/*</url-pattern>
   </servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>PMCGetCitedByCount</servlet-name>
-		<url-pattern>/pmcCitedBy</url-pattern>
-	</servlet-mapping>
   <!-- Icon MIME type -->
   <mime-mapping>
     <extension>ico</extension>

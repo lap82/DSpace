@@ -6,12 +6,12 @@ public class PMCEntrezException extends Exception
     {
         super();
     }
-    
+
     public PMCEntrezException(String message)
     {
         super(message);
     }
-    
+
     public PMCEntrezException(String message, Throwable rootCause)
     {
         super(message, rootCause);

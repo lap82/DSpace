@@ -269,13 +269,13 @@
     <%
     if (pubMedEnabled == true)
     {
-        String pubmedURL = ConfigurationManager.getProperty("retrieve.pubmed.url.service");        
+                
 	%>
     <script type="text/javascript">
 
 
 	ajaxPMCCitedBy = function(args) {
-		new Ajax.Request("<%= pubmedURL==null?"http://localhost:8080/pubmed":pubmedURL %>/pmcCitedBy?item_id=" + encodeURIComponent(args), {
+		new Ajax.Request("<%= request.getContextPath() %>/pmcCitedBy?item_id=" + encodeURIComponent(args), {
 			method: "get",
 			onSuccess: function(transport) {
 			},

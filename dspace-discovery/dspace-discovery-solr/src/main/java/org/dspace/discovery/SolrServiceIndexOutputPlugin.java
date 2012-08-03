@@ -9,6 +9,8 @@ package org.dspace.discovery;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.Item;
+import org.dspace.core.Constants;
 
 
 /**
@@ -21,5 +23,10 @@ public class SolrServiceIndexOutputPlugin implements SolrServiceIndexPlugin{
     @Override
     public void additionalIndex(DSpaceObject dso, SolrInputDocument document) {
         System.out.println("Currently indexing: " + dso.getHandle());
+        if(dso.getType()==Constants.ITEM) {
+        	Item item = (Item)dso;
+        	document.addField("withdrawn", item.isWithdrawn());
+        	document.addField("inarchive", item.isArchived());
+        }
     }
 }

@@ -9,17 +9,5 @@
     <version>0.1</version>
   </parent>
   <packaging>war</packaging>
-  <name>Article Metrics :: PubMed :: Lookup JSP Web</name>
-  
-  <dependencies>
-
-  		 <dependency>
-            <groupId>it.cilea</groupId>
-            <artifactId>pubmed-lookup</artifactId>  
-            <version>0.1</version>			          
-        </dependency>
-
-      
-  </dependencies>
-  
+  <name>Article Metrics :: PubMed :: Lookup JSP Web</name>    
 </project>

@@ -39,7 +39,8 @@ public class PMCServlet extends DSpaceServlet
         if (itemID != -1)
         {
             PMCCitation citation = pservice.getCitationByItemID(itemID);
-            if (citation == null) return;
+            if (citation == null)
+                return;
             request.setAttribute("pmccitation", citation);
             JSPManager.showJSP(request, response,
                     "/ametrics/pubmed/pmc-citation.jsp");
@@ -47,7 +48,8 @@ public class PMCServlet extends DSpaceServlet
         else if (pmid != -1)
         {
             PMCCitation citation = pservice.get(PMCCitation.class, pmid);
-            if (citation == null) return;
+            if (citation == null)
+                return;
             request.setAttribute("pmccitation", citation);
             JSPManager.showJSP(request, response,
                     "/ametrics/pubmed/pmc-citation-details.jsp");

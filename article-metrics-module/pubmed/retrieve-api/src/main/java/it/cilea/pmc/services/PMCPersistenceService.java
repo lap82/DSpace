@@ -12,23 +12,24 @@ import org.hibernate.Session;
 public class PMCPersistenceService extends PersistenceService
 {
     private PMCEntrezServices entrez;
+
     protected IApplicationDao applicationDao;
-    
+
     private PMCCitationDao citationDao;
 
-    
     public void init()
     {
         citationDao = (PMCCitationDao) getDaoByModel(PMCCitation.class);
     }
-    
+
     /**
      * Setter for the applicationDao
      * 
      * @param applicationDao
      *            the dao to use for generic query
      */
-    public void setApplicationDao(IApplicationDao applicationDao) {
+    public void setApplicationDao(IApplicationDao applicationDao)
+    {
         this.applicationDao = applicationDao;
     }
 
@@ -37,7 +38,8 @@ public class PMCPersistenceService extends PersistenceService
      * 
      * @see Session#evict(Object)
      */
-    public void evict(Identifiable identifiable) {
+    public void evict(Identifiable identifiable)
+    {
         applicationDao.evict(identifiable);
     }
 
@@ -47,7 +49,7 @@ public class PMCPersistenceService extends PersistenceService
      * 
      * @param pmcid
      * @return
-     * @throws PMCEntrezException 
+     * @throws PMCEntrezException
      */
     public PMCRecord getPMCRecord(Integer pmcid) throws PMCEntrezException
     {

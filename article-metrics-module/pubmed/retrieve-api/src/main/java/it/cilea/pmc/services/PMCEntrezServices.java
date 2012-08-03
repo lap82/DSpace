@@ -62,7 +62,8 @@ public class PMCEntrezServices
         return getCitedByPMEDIDs(pmedID).get(pmedID);
     }
 
-    public Map<Integer, Set<Integer>> getCitedByPMEDIDs(Integer... pmedID) throws PMCEntrezException
+    public Map<Integer, Set<Integer>> getCitedByPMEDIDs(Integer... pmedID)
+            throws PMCEntrezException
     {
         return getMultiIDs(ENTREZ_CITE_ENDPOINT, "PMID", "PMCID", pmedID);
     }
@@ -72,7 +73,8 @@ public class PMCEntrezServices
         return getMultiPMCRecord(pmcID).get(0);
     }
 
-    public List<PMCRecord> getMultiPMCRecord(Integer... pmcID) throws PMCEntrezException
+    public List<PMCRecord> getMultiPMCRecord(Integer... pmcID)
+            throws PMCEntrezException
     {
         GetMethod method = null;
         if (pmcID == null || pmcID.length == 0)
@@ -121,7 +123,8 @@ public class PMCEntrezServices
         catch (Exception e)
         {
             throw new PMCEntrezException("Entrez webservice failure: "
-                    + e.getMessage() + " query string: "+method.getQueryString(), e);
+                    + e.getMessage() + " query string: "
+                    + method.getQueryString(), e);
         }
         finally
         {
@@ -137,14 +140,16 @@ public class PMCEntrezServices
 
         for (int i = 1; i < pmcID.length; i++)
         {
-            int end = toProcess.indexOf((i + 1) + ": ", toProcess.indexOf("PMCID: "));
+            int end = toProcess.indexOf((i + 1) + ": ",
+                    toProcess.indexOf("PMCID: "));
             result.add(parsePMCRecord(toProcess.substring(0, end), pmcID[i - 1]));
             toProcess = toProcess.substring(end + 3);
         }
         result.add(parsePMCRecord(toProcess, pmcID[pmcID.length - 1]));
     }
 
-    private PMCRecord parsePMCRecord(String toProcess, Integer pmcID) throws PMCEntrezException
+    private PMCRecord parsePMCRecord(String toProcess, Integer pmcID)
+            throws PMCEntrezException
     {
         String title = null;
         String authors = null;
@@ -246,14 +251,16 @@ public class PMCEntrezServices
         return new ArrayList<Integer>(getMultiPubmedIDs(pmcID).get(pmcID));
     }
 
-    public Map<Integer, Set<Integer>> getMultiPubmedIDs(Integer... pmcID) throws PMCEntrezException
+    public Map<Integer, Set<Integer>> getMultiPubmedIDs(Integer... pmcID)
+            throws PMCEntrezException
     {
         return getMultiIDs(ENTREZ_PMC_TO_PUBMED_ENDPOINT, "PMCID", "PMID",
                 pmcID);
     }
 
-    private Map<Integer, Set<Integer>> getMultiIDs(String endpoint,
-            String key, String otherIdentifer, Integer... lookupIDs) throws PMCEntrezException
+    private Map<Integer, Set<Integer>> getMultiIDs(String endpoint, String key,
+            String otherIdentifer, Integer... lookupIDs)
+            throws PMCEntrezException
     {
 
         GetMethod method = null;
@@ -322,7 +329,8 @@ public class PMCEntrezServices
         return new ArrayList<Integer>(getMultiPMCIDs(pubmedID).get(pubmedID));
     }
 
-    public Map<Integer, Set<Integer>> getMultiPMCIDs(Integer... pubmedID) throws PMCEntrezException
+    public Map<Integer, Set<Integer>> getMultiPMCIDs(Integer... pubmedID)
+            throws PMCEntrezException
     {
         return getMultiIDs(ENTREZ_PUBMED_TO_PMC_ENDPOINT, "PMID", "PMCID",
                 pubmedID);

@@ -10,7 +10,7 @@
     <name>Article Metrics :: PubMed</name>
 
     <parent>
-        <artifactId>article-metrics-modules</artifactId>
+        <artifactId>article-metrics-module</artifactId>
 		<groupId>it.cilea</groupId>
 		<version>0.1</version>
     </parent>
@@ -38,7 +38,7 @@
         </plugins>
     </build>
 
-    <repositories>
+  <repositories>
         <repository>
             <id>maven.dspace.org-snapshot</id>
             <name>DSpace Maven Snapshot Repository</name>
@@ -86,6 +86,8 @@
             <url>scp://projects.dspace.org/var/www/projects.dspace.org/htdocs/${project.artifactId}</url>
         </site>
     </distributionManagement>
+
+
 
     
 </project>

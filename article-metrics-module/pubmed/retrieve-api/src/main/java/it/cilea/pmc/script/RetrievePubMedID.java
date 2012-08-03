@@ -9,14 +9,18 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.discovery.DiscoverQuery;
+import org.dspace.discovery.DiscoverResult;
+import org.dspace.discovery.DiscoverResult.SearchDocument;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.kernel.ServiceManager;
@@ -42,83 +46,113 @@ public class RetrievePubMedID
         SearchService searcher = serviceManager.getServiceByName(
                 SearchService.class.getName(), SearchService.class);
         PMCEntrezLocalSOLRServices entrez = new PMCEntrezLocalSOLRServices();
-
-        SolrQuery query = new SolrQuery();
-        query.setQuery("+(dc.identifier.doi:[* TO *] OR dc.identifier.pmcid:[* TO *]) -dc.identifier.pmid:[* TO *] +inarchive:true");
-        query.setRows(Integer.MAX_VALUE);
-        query.setFields("search.resourceid", "dc.identifier.doi",
-                "dc.identifier.pmcid");
-        QueryResponse qresp = searcher.search(query);
-        SolrDocumentList list = qresp.getResults();
-        log.info(LogManager.getHeader(null, "retrieve_pubmedID", "Processing "
-                + list.getNumFound() + " items"));
-        for (SolrDocument doc : list)
+        Context context = null;
+        try
         {
-            Integer itemID = (Integer) doc.getFieldValue("search.resourceid");
-            if (isCheckRequired(itemID))
+            context = new Context();
+            DiscoverQuery query = new DiscoverQuery();
+            query.setQuery("+(dc.identifier.doi:[* TO *] OR dc.identifier.pmcid:[* TO *]) -dc.identifier.pmid:[* TO *] +inarchive:true");
+            query.setMaxResults(Integer.MAX_VALUE);
+            query.setDSpaceObjectFilter(Constants.ITEM);
+            query.addSearchField("dc.identifier.doi");
+            query.addSearchField("dc.identifier.pmcid");
+            DiscoverResult qresp = searcher.search(context, query);
+            for (DSpaceObject dso : qresp.getDspaceObjects())
             {
-                Collection<Object> dois = (Collection<Object>) doc
-                        .getFieldValues("dc.identifier.doi");
-                Collection<Object> pmcids = (Collection<Object>) doc
-                        .getFieldValues("dc.identifier.pmcid");
-                if (dois != null)
+
+                List<SearchDocument> list = qresp.getSearchDocument(dso);
+                log.info(LogManager.getHeader(null, "retrieve_pubmedID",
+                        "Processing " + qresp.getTotalSearchResults()
+                                + " items"));
+                for (SearchDocument doc : list)
                 {
-                    for (Object doi : dois)
+                    Integer itemID = dso.getID();
+                    if (isCheckRequired(itemID))
                     {
-                        log.debug(LogManager.getHeader(null,
-                                "retrieve_pubmedID", "search doi:" + doi));
-                        List<Integer> pubmedIDs = entrez
-                                .getPubmedIDs((String) doi);
-                        log.debug(LogManager.getHeader(null,
-                                "retrieve_pubmedID", "pubmedIDs=" + pubmedIDs));
-                        if (pubmedIDs != null && pubmedIDs.size() > 0)
+                        List<String> dois = doc
+                                .getSearchFieldValues("dc.identifier.doi");
+                        List<String> pmcids = doc
+                                .getSearchFieldValues("dc.identifier.pmcid");
+                        if (dois != null)
                         {
-                            pmidRetrieved++;
-                            recordPubmedID(itemID, pubmedIDs);
-                        }
-                    }
-                }
-                if (pmcids != null)
-                {
-                    for (Object pmcid : pmcids)
-                    {
-                        String spmcid = (String) pmcid;
-                        if (spmcid.toLowerCase().startsWith("pmc"))
-                        {
-                            spmcid = spmcid.substring(3);
-                        }
-                        log.debug(LogManager.getHeader(null,
-                                "retrieve_pubmedID", "search PMCID:" + pmcid));
-                        try
-                        {
-                            Integer ipmcid = Integer.valueOf(spmcid);
-                            List<Integer> pubmedIDs = entrez
-                                    .getPubmedIDs(ipmcid);
-                            log.debug(LogManager.getHeader(null,
-                                    "retrieve_pubmedID", "pubmedIDs="
-                                            + StringUtils.collectionToCommaDelimitedString(pubmedIDs)));
-                            if (pubmedIDs != null && pubmedIDs.size() > 0)
+                            for (Object doi : dois)
                             {
-                                pmidRetrieved++;
-                                recordPubmedID(itemID, pubmedIDs);
+                                log.debug(LogManager.getHeader(null,
+                                        "retrieve_pubmedID", "search doi:"
+                                                + doi));
+                                List<Integer> pubmedIDs = entrez
+                                        .getPubmedIDs((String) doi);
+                                log.debug(LogManager.getHeader(null,
+                                        "retrieve_pubmedID", "pubmedIDs="
+                                                + pubmedIDs));
+                                if (pubmedIDs != null && pubmedIDs.size() > 0)
+                                {
+                                    pmidRetrieved++;
+                                    recordPubmedID(itemID, pubmedIDs);
+                                }
                             }
                         }
-                        catch (NumberFormatException nfe)
+                        if (pmcids != null)
                         {
-                            log.error(LogManager.getHeader(null,
-                                    "retrieve_pubmedID",
-                                    "Found an invalid PMCID value! ItemID: "
-                                            + itemID + " - PMCID: " + pmcid));
+                            for (Object pmcid : pmcids)
+                            {
+                                String spmcid = (String) pmcid;
+                                if (spmcid.toLowerCase().startsWith("pmc"))
+                                {
+                                    spmcid = spmcid.substring(3);
+                                }
+                                log.debug(LogManager.getHeader(null,
+                                        "retrieve_pubmedID", "search PMCID:"
+                                                + pmcid));
+                                try
+                                {
+                                    Integer ipmcid = Integer.valueOf(spmcid);
+                                    List<Integer> pubmedIDs = entrez
+                                            .getPubmedIDs(ipmcid);
+                                    log.debug(LogManager.getHeader(
+                                            null,
+                                            "retrieve_pubmedID",
+                                            "pubmedIDs="
+                                                    + StringUtils
+                                                            .collectionToCommaDelimitedString(pubmedIDs)));
+                                    if (pubmedIDs != null
+                                            && pubmedIDs.size() > 0)
+                                    {
+                                        pmidRetrieved++;
+                                        recordPubmedID(itemID, pubmedIDs);
+                                    }
+                                }
+                                catch (NumberFormatException nfe)
+                                {
+                                    log.error(LogManager.getHeader(null,
+                                            "retrieve_pubmedID",
+                                            "Found an invalid PMCID value! ItemID: "
+                                                    + itemID + " - PMCID: "
+                                                    + pmcid));
+                                }
+                            }
                         }
                     }
                 }
             }
+            Date endDate = new Date();
+            long processTime = (endDate.getTime() - startDate.getTime()) / 1000;
+            log.info(LogManager.getHeader(null, "retrieve_pubmedID",
+                    "Processing time " + processTime + " sec. - Retrieved "
+                            + pmidRetrieved + " pubmedID"));
         }
-        Date endDate = new Date();
-        long processTime = (endDate.getTime() - startDate.getTime()) / 1000;
-        log.info(LogManager.getHeader(null, "retrieve_pubmedID",
-                "Processing time " + processTime + " sec. - Retrieved "
-                        + pmidRetrieved + " pubmedID"));
+        catch (Exception ex)
+        {
+            log.error(ex.getMessage(), ex);
+        }
+        finally
+        {
+            if (context != null && context.isValid())
+            {
+                context.abort();
+            }
+        }
+
     }
 
     private static void recordPubmedID(Integer itemID, List<Integer> pubmedIDs)

@@ -26,7 +26,13 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.DSpaceObject;
+import org.dspace.core.Constants;
+import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.discovery.DiscoverQuery;
+import org.dspace.discovery.DiscoverResult;
+import org.dspace.discovery.DiscoverResult.SearchDocument;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.kernel.ServiceManager;
@@ -98,75 +104,105 @@ public class RetrieveCitationInPMC
             maxItemToWork = Long.valueOf(line.getOptionValue('x').trim());
         }
         ServiceManager serviceManager = dspace.getServiceManager();
-//        System.out.println(serviceManager.getServicesNames());
+        // System.out.println(serviceManager.getServicesNames());
         searcher = serviceManager.getServiceByName(
                 SearchService.class.getName(), SearchService.class);
 
         pservice = serviceManager.getServiceByName(
                 PMCPersistenceService.class.getName(),
                 PMCPersistenceService.class);
-        SolrQuery query = new SolrQuery();
-        query.setQuery("+dc.identifier.pmid:[* TO *] +inarchive:true");
-        query.setRows(Integer.MAX_VALUE);
-        query.setFields("search.resourceid", "dc.identifier.doi",
-                "dc.identifier.pmid");
-        QueryResponse qresp = searcher.search(query);
-        SolrDocumentList list = qresp.getResults();
-        log.info(LogManager.getHeader(null, "retrieve_citation", "Processing "
-                + list.getNumFound() + " items"));
-        for (SolrDocument doc : list)
+
+        Context context = null;
+        try
         {
-            if (maxItemToWork != 0 && itemWorked == maxItemToWork)
-                break;
+            context = new Context();
 
-            Integer itemID = (Integer) doc.getFieldValue("search.resourceid");
-            if (isCheckRequired(itemID))
+            DiscoverQuery query = new DiscoverQuery();
+            query.setQuery("+dc.identifier.pmid:[* TO *] +inarchive:true");
+            query.setMaxResults(Integer.MAX_VALUE);
+            query.setDSpaceObjectFilter(Constants.ITEM);
+            query.addSearchField("dc.identifier.doi");
+            query.addSearchField("dc.identifier.pmid");
+            DiscoverResult qresp = searcher.search(context, query);
+
+            log.info(LogManager.getHeader(null, "retrieve_citation",
+                    "Processing " + qresp.getTotalSearchResults() + " items"));
+            for (DSpaceObject dso : qresp.getDspaceObjects())
             {
-                itemWorked++;
-                Collection<Object> pmids = (Collection<Object>) doc
-                        .getFieldValues("dc.identifier.pmid");
 
-                for (Object pmid : pmids)
+                List<SearchDocument> list = qresp.getSearchDocument(dso);
+                for (SearchDocument doc : list)
                 {
-                    log.debug(LogManager.getHeader(null, "retrieve_citation",
-                            "lookup pmid:" + pmid));
-                    try
+                    if (maxItemToWork != 0 && itemWorked == maxItemToWork)
+                        break;
+
+                    Integer itemID = dso.getID();
+
+                    if (isCheckRequired(itemID))
                     {
-                        Integer ipmid = Integer.valueOf((String) pmid);
-                        Set<Integer> citingPMCIDs = entrez
-                                .getCitedByPMEDID(ipmid);
-                        log.debug(LogManager.getHeader(null,
-                                "retrieve_citation",
-                                "found " + citingPMCIDs.size()
-                                        + " citing PMC records"));
-                        // if (citingPMCIDs != null && citingPMCIDs.size() > 0)
-                        // {
-                        citationRetrieved += citingPMCIDs.size();
-                        updatePMCCiting(itemID, ipmid, citingPMCIDs);
-                        // }
-                    }
-                    catch (NumberFormatException nfe)
-                    {
-                        log.error(LogManager.getHeader(null,
-                                "retrieve_citation",
-                                "Found an invalid PID value! ItemID: " + itemID
-                                        + " - PMID: " + pmid));
-                    }
-                    catch (PMCEntrezException pe)
-                    {
-                        log.error(LogManager.getHeader(null,
-                                "retrieve_citation", "Error in EntrezService"),
-                                pe);
+                        itemWorked++;
+                        List<String> pmids = doc
+                                .getSearchFieldValues("dc.identifier.pmid");
+
+                        for (String pmid : pmids)
+                        {
+                            log.debug(LogManager.getHeader(null,
+                                    "retrieve_citation", "lookup pmid:" + pmid));
+                            try
+                            {
+                                Integer ipmid = Integer.valueOf((String) pmid);
+                                Set<Integer> citingPMCIDs = entrez
+                                        .getCitedByPMEDID(ipmid);
+                                log.debug(LogManager.getHeader(null,
+                                        "retrieve_citation", "found "
+                                                + citingPMCIDs.size()
+                                                + " citing PMC records"));
+                                // if (citingPMCIDs != null &&
+                                // citingPMCIDs.size() >
+                                // 0)
+                                // {
+                                citationRetrieved += citingPMCIDs.size();
+                                updatePMCCiting(itemID, ipmid, citingPMCIDs);
+                                // }
+                            }
+                            catch (NumberFormatException nfe)
+                            {
+                                log.error(LogManager.getHeader(null,
+                                        "retrieve_citation",
+                                        "Found an invalid PID value! ItemID: "
+                                                + itemID + " - PMID: " + pmid));
+                            }
+                            catch (PMCEntrezException pe)
+                            {
+                                log.error(LogManager.getHeader(null,
+                                        "retrieve_citation",
+                                        "Error in EntrezService"), pe);
+                            }
+                        }
                     }
                 }
             }
+            Date endDate = new Date();
+            long processTime = (endDate.getTime() - startDate.getTime()) / 1000;
+            log.info(LogManager.getHeader(null, "retrieve_citation",
+                    "Processing time " + processTime + " sec. - Retrieved "
+                            + citationRetrieved + " PMC citation for "
+                            + itemWorked + " items"));
         }
-        Date endDate = new Date();
-        long processTime = (endDate.getTime() - startDate.getTime()) / 1000;
-        log.info(LogManager.getHeader(null, "retrieve_citation",
-                "Processing time " + processTime + " sec. - Retrieved "
-                        + citationRetrieved + " PMC citation for " + itemWorked
-                        + " items"));
+        catch (Exception ex)
+        {
+            log.error(ex.getMessage(), ex);
+        }
+        finally
+        {
+
+            if (context != null && context.isValid())
+            {
+                context.abort();
+            }
+
+        }
+
     }
 
     private static void updatePMCCiting(Integer itemID, Integer pmid,
@@ -175,54 +211,71 @@ public class RetrieveCitationInPMC
         Integer[] arrPMCIDs = new Integer[pmcIDs.size()];
         arrPMCIDs = pmcIDs.toArray(arrPMCIDs);
         List<PMCRecord> pmcRecords = null;
+        Context context = null;
         try
         {
-            pmcRecords = entrez.getMultiPMCRecord(arrPMCIDs);
-            for (PMCRecord pmcRecord : pmcRecords)
+            context = new Context();
+
+            try
             {
-                List<Integer> pubmedIDs = entrezLocal.getPubmedIDs(pmcRecord
-                        .getId());
-                if (pubmedIDs != null && pubmedIDs.size() > 0)
+
+                pmcRecords = entrez.getMultiPMCRecord(arrPMCIDs);
+                for (PMCRecord pmcRecord : pmcRecords)
                 {
-                    pmcRecord.setPubmedIDs(pubmedIDs);
-                    SolrQuery query = new SolrQuery();
-                    query.setQuery("dc.identifier.pmid:("
-                            + StringUtils.collectionToDelimitedString(pubmedIDs,
-                                    " OR ") + ")");
-                    query.setFields("handle");
-                    QueryResponse qresp = searcher.search(query);
-                    List<String> handles = new ArrayList<String>();
-                    for (SolrDocument doc : qresp.getResults())
+                    List<Integer> pubmedIDs = entrezLocal
+                            .getPubmedIDs(pmcRecord.getId());
+                    if (pubmedIDs != null && pubmedIDs.size() > 0)
                     {
-                        handles.add((String) doc
-                                .getFieldValue("handle"));
+                        pmcRecord.setPubmedIDs(pubmedIDs);
+                        DiscoverQuery query = new DiscoverQuery();
+                        query.setQuery("dc.identifier.pmid:("
+                                + StringUtils.collectionToDelimitedString(
+                                        pubmedIDs, " OR ") + ")");
+                        // query.addSearchField("handle");
+                        DiscoverResult qresp = searcher.search(context, query);
+                        List<String> handles = new ArrayList<String>();
+                        for (DSpaceObject doc : qresp.getDspaceObjects())
+                        {
+                            handles.add(doc.getHandle());
+                        }
+                        pmcRecord.setHandles(handles);
                     }
-                    pmcRecord.setHandles(handles);
+                    pservice.saveOrUpdate(PMCRecord.class, pmcRecord);
                 }
-                pservice.saveOrUpdate(PMCRecord.class, pmcRecord);
+            }
+            catch (PMCEntrezException e)
+            {
+                log.error(LogManager.getHeader(null, "updatePMCRecord",
+                        "Error in EntrezService"), e);
+            }
+            PMCCitation citation = new PMCCitation();
+            citation.setId(pmid);
+            citation.setPmcRecords(pmcRecords);
+            citation.setNumCitations(pmcIDs.size());
+
+            DiscoverQuery query = new DiscoverQuery();
+            query.setQuery("dc.identifier.pmid:" + pmid);
+            // query.addSearchField("search.resourceid");
+            DiscoverResult qresp = searcher.search(context, query);
+            List<Integer> itemIDs = new ArrayList<Integer>();
+            for (DSpaceObject doc : qresp.getDspaceObjects())
+            {
+                itemIDs.add(doc.getID());
+            }
+            citation.setItemIDs(itemIDs);
+            pservice.saveOrUpdate(PMCCitation.class, citation);
+        }
+        catch (Exception ex)
+        {
+            log.error(ex.getMessage(), ex);
+        }
+        finally
+        {
+            if (context != null && context.isValid())
+            {
+                context.abort();
             }
         }
-        catch (PMCEntrezException e)
-        {
-            log.error(LogManager.getHeader(null, "updatePMCRecord",
-                    "Error in EntrezService"), e);
-        }
-        PMCCitation citation = new PMCCitation();
-        citation.setId(pmid);
-        citation.setPmcRecords(pmcRecords);
-        citation.setNumCitations(pmcIDs.size());
-
-        SolrQuery query = new SolrQuery();
-        query.setQuery("dc.identifier.pmid:" + pmid);
-        query.setFields("search.resourceid");
-        QueryResponse qresp = searcher.search(query);
-        List<Integer> itemIDs = new ArrayList<Integer>();
-        for (SolrDocument doc : qresp.getResults())
-        {
-            itemIDs.add((Integer) doc.getFieldValue("search.resourceid"));
-        }
-        citation.setItemIDs(itemIDs);
-        pservice.saveOrUpdate(PMCCitation.class, citation);
     }
 
     private static boolean isCheckRequired(Integer itemID)
