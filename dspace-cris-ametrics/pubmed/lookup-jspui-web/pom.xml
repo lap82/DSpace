@@ -6,8 +6,14 @@
   <parent>
     <artifactId>article-metrics-pubmed</artifactId>
     <groupId>org.dspace</groupId>
-    <version>3.3-SNAPSHOT</version>
+    <version>CRIS-3.2.1-SNAPSHOT</version>
   </parent>
   
   <name>Article Metrics :: PubMed :: Lookup JSP Web</name>
+  
+   <!--Force UTF-8 encoding during build on all platforms-->
+   <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <root.basedir>${basedir}/../..</root.basedir>
+   </properties>
 </project>
