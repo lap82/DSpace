@@ -127,9 +127,19 @@ public class SubmissionLookupUtils {
 						"get" + field.getName().substring(0, 1).toUpperCase()
 								+ field.getName().substring(1));
 
-				if (pt.getActualTypeArguments()[0] instanceof GenericArrayType) { // nomi
-																					// di
-																					// persone
+				ParameterizedType stringListType = (ParameterizedType) field.getGenericType();
+		        Class<?> stringListClass = (Class<?>) stringListType.getActualTypeArguments()[0];
+		        
+				if (String.class.isAssignableFrom(stringListClass)) { //repeatable metadata
+					List<String> values = (List<String>) getter.invoke(bean);
+					if (values != null) {
+						for (String value : values) {
+							addMetadata(shortName, publication,
+									field.getName(), value);
+						}
+					}
+				} else {
+					//authors
 					List<String[]> values = (List<String[]>) getter
 							.invoke(bean);
 					if (values != null) {
@@ -139,15 +149,8 @@ public class SubmissionLookupUtils {
 									field.getName(), value);
 						}
 					}
-				} else { // metadati ripetibili
-					List<String> values = (List<String>) getter.invoke(bean);
-					if (values != null) {
-						for (String value : values) {
-							addMetadata(shortName, publication,
-									field.getName(), value);
-						}
-					}
 				}
+
 			}
 		}
 		return publication;
