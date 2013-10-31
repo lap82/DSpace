@@ -89,9 +89,9 @@
 		if((noCollection != null) && (noCollection.booleanValue()==true))
 		{
 %>
-                <div class="alert alert-warning">
+              <!--   <div class="alert alert-warning">
 					<p><fmt:message key="jsp.submit.start-lookup-submission.no-collection"/></p>
-				</div>
+				</div> -->
 <%
 		}
 		//if no collection was selected, display an error
@@ -157,9 +157,8 @@
 			<textarea class="form-control submission-lookup-search" name="search_authors" id="search_authors"cols="50" row="4"></textarea>
 		</div>
 		
-		<div class="btn-group col-md-offset-5">			
-			<button type="button" class="btn btn-primary" id="search_go"><fmt:message key="jsp.submit.start-lookup-submission.search-go"/></button>
-			<button type="button" class="btn btn-default exit"><fmt:message key="jsp.submit.start-lookup-submission.exit"/></button>
+		<div class="row">			
+			<button type="button" class="btn btn-primary col-md-2 pull-right" id="search_go"><fmt:message key="jsp.submit.start-lookup-submission.search-go"/></button>
 		</div>
 		</form>
 	</div>
@@ -201,10 +200,10 @@
 			}
 %></div></div></div><%
 		} %>				
-	<div class="btn-group col-md-offset-5">	
-		<button class="btn btn-primary" type="button" id="lookup_idenfifiers"><fmt:message key="jsp.submit.start-lookup-submission.identifier.lookup"/></button>
-		<button type="button" class="btn btn-default exit"><fmt:message key="jsp.submit.start-lookup-submission.exit"/></button></td></tr>
+	<div class="row">	
+		<button class="btn btn-primary col-md-2 pull-right" type="button" id="lookup_idenfifiers"><fmt:message key="jsp.submit.start-lookup-submission.identifier.lookup"/></button>
 	</div>
+	&nbsp;
 	</form>
 	</div>
 <% 
@@ -260,9 +259,8 @@
 				</div>
 	</div>
 			
-	<div class="btn-group col-md-offset-5">	
-		<button class="btn btn-primary" type="button" id="loadfile_go"><fmt:message key="jsp.submit.start-lookup-submission.identifier.lookup"/></button>
-		<button type="button" class="btn btn-default exit"><fmt:message key="jsp.submit.start-lookup-submission.exit"/></button>
+	<div class="row">	
+		<button class="btn btn-primary col-md-2 pull-right" type="button" id="loadfile_go"><fmt:message key="jsp.submit.start-lookup-submission.byfile.lookup"/></button>
 	</div>
 		</form>
 	</div>
@@ -306,6 +304,9 @@
 			</form>
 		</div>	
 	</div>
+<div class="row container">
+		<button type="button" class="btn btn-default col-md-2 pull-right exit"><fmt:message key="jsp.submit.start-lookup-submission.exit"/></button>
+	</div>	
 </div>
 </div>
 		<div id="hidden-area" style="display: none;">
