@@ -174,6 +174,12 @@
    				$('#uploadForm').attr('target','uploadFormIFrame');
    			}
    		});
+   		$('input[name="submit_cancel"]').on('click', function(){
+ 		    $('#tfile').val('');
+ 		    $('#ajaxUpload').val(false);
+ 		    $('#uploadForm').append('<input type="hidden" name="submit_cancel" value="1">');
+	        $('#uploadForm').submit();
+        });
    		$('#uploadForm').append('<input type="hidden" id="ajaxUpload" name="ajaxUpload" value="true" />');
    		// track the upload progress for all the submit buttons other than the skip
    		$('input[type="submit"]').not(":disabled")
